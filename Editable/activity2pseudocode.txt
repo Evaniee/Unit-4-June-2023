@@ -1,0 +1,95 @@
+START Main
+    # Constants
+    SET MaxSize TO 450
+    SET MaxWeight TO 30
+    # Customer Info
+    SET name TO STR INPUT
+    SET address TO STR INPUT
+    SET phoneNumber TO STRINPUT
+    # Parcels to Collect
+    SET parcelsToCollect TO INT INPUT
+    LOOP WHILE NOT(1 <= parcelsToCollect AND parcelsToCollect <= 6)
+        DISPLAY "invalid input not between 1 and 6"
+        SET parcelsToCollect TO INT INPUT
+    END LOOP
+    # Parcels
+    SET parcels TO 0
+    SET parcelList TO ARRAY of PARCEL
+    LOOP WHILE parcels < parcelsToCollect
+        SET parcel TO CreateParcel()
+        ADD parcel TO parcelList
+        INCREMENT parcels
+    END LOOP
+    # Customer Details
+    DISPLAY "Customer"
+    DISPLAY "   " name
+    DISPLAY "   " address
+    DISPLAY "   " phoneNumber
+    # Parcel Details
+    SET parcels TO 0
+    SET totalCost TO 0
+    LOOP WHILE parcels < parcelsToCollect
+        INCREMENT parcels
+        DISPLAY "Parcel " parcels
+        SET cost TO ParcelCost(parcelList AT parcels)
+        # Uncollectable
+        IF cost = NULL
+            DISPLAY "   Cannot be collected"
+        # Collectable
+        ELSE
+            DISPLAY "   Cost: £" cost
+            # Add additional charges
+            IF parcel.tracked
+                DISPLAY "       Tracking: + £5.00"
+                SET cost TO cost + 5
+            ENDIF
+            IF parcel.signature
+                DISPLAY "       Signature: + £2.00"
+                SET cost TO cost + 2
+            ENDIF
+            # Show total package cost if additional charges
+            IF parcel.tracked OR parcel.signature
+                DISPLAY "   Total Cost: £" cost
+            ENDIF
+            SET totalCost TO totalCost + cost
+        ENDIF
+    END LOOP
+    # Overall cost of total collection
+    DISPLAY "Collection Cost: £" totalCost
+END Main
+
+# Represents a parcel
+STRUCT PARCEL
+    height IS INT
+    length IS INT
+    width IS INT
+    weight IS INT
+    tracked IS BOOL
+    signature IS BOOL
+ENDSTRUCT
+
+# Create a single parcel
+START CreateParcel()
+    SET parcel
+    SET parcel.height TO INT INPUT
+    SET parcel.length TO INT INPUT
+    SET parcel.width TO INT INPUT
+    SET parcel.weight TO INT INPUT
+    SET parcel.tracked TO BOOL INPUT
+    SET parcel.signature TO BOOL INPUT
+END CreateParcel RETURN parcel
+
+# Calculate the cost of a parcel
+START ParcelCost(parcel IS PARCEL)
+SET cost
+SET size TO parcel.height + parcel.length + parcel.width
+IF size > MaxSize OR parcel.weight > MaxWeight
+    cost = NULL
+ELSE IF size > 150 OR weight > 15
+    cost = 30
+ELSE IF size > 95 OR weight > 2
+    cost = 20
+ELSE
+    cost = 5
+ENDIF
+END ParcelCost RETURN cost
